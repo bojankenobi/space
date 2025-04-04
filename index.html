@@ -195,6 +195,10 @@
         const joystick = document.getElementById('joystick');
         const fireButton = document.getElementById('fireButton');
 
+        // Detect if the device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const MOBILE_SPEED_FACTOR = isMobile ? 0.5 : 1.0; // Halve speed on mobile
+
         // Game Configuration
         const config = {
             PLAYER_COLOR: '#00ff00', BULLET_COLOR: '#00ff00', ENEMY_BULLET_COLOR: '#ff5555',
@@ -341,7 +345,7 @@
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
                     size: Math.random() * 2 + 1,
-                    speed: (Math.random() * 0.5 + 0.2) * config.STAR_SPEED_FACTOR
+                    speed: (Math.random() * 0.5 + 0.2) * config.STAR_SPEED_FACTOR * MOBILE_SPEED_FACTOR
                 }));
             },
             initPlanets: () => {
@@ -350,8 +354,8 @@
                     y: Math.random() * canvas.height,
                     radius: Math.random() * 20 + 10,
                     color: config.PLANET_COLORS[Math.floor(Math.random() * config.PLANET_COLORS.length)],
-                    speedX: (Math.random() - 0.5) * config.PLANET_SPEED_FACTOR * 2,
-                    speedY: (Math.random() - 0.5) * config.PLANET_SPEED_FACTOR * 2
+                    speedX: (Math.random() - 0.5) * config.PLANET_SPEED_FACTOR * 2 * MOBILE_SPEED_FACTOR,
+                    speedY: (Math.random() - 0.5) * config.PLANET_SPEED_FACTOR * 2 * MOBILE_SPEED_FACTOR
                 }));
             },
             moveStars: () => {
@@ -377,14 +381,14 @@
                 if (!state.player) return;
                 const p = state.player;
 
-                if (state.keys['ArrowLeft'] || state.keys['a']) p.x -= config.PLAYER_SPEED;
-                if (state.keys['ArrowRight'] || state.keys['d']) p.x += config.PLAYER_SPEED;
-                if (state.keys['ArrowUp'] || state.keys['w']) p.y -= config.PLAYER_SPEED;
-                if (state.keys['ArrowDown'] || state.keys['s']) p.y += config.PLAYER_SPEED;
+                if (state.keys['ArrowLeft'] || state.keys['a']) p.x -= config.PLAYER_SPEED * MOBILE_SPEED_FACTOR;
+                if (state.keys['ArrowRight'] || state.keys['d']) p.x += config.PLAYER_SPEED * MOBILE_SPEED_FACTOR;
+                if (state.keys['ArrowUp'] || state.keys['w']) p.y -= config.PLAYER_SPEED * MOBILE_SPEED_FACTOR;
+                if (state.keys['ArrowDown'] || state.keys['s']) p.y += config.PLAYER_SPEED * MOBILE_SPEED_FACTOR;
 
                 if (state.joystickActive) {
-                    p.x += state.joystickX * config.PLAYER_SPEED;
-                    p.y += state.joystickY * config.PLAYER_SPEED;
+                    p.x += state.joystickX * config.PLAYER_SPEED * MOBILE_SPEED_FACTOR;
+                    p.y += state.joystickY * config.PLAYER_SPEED * MOBILE_SPEED_FACTOR;
                 }
 
                 p.x = Math.max(5, Math.min(canvas.width - config.PLAYER_WIDTH, p.x));
@@ -398,7 +402,7 @@
                     y: y + config.PLAYER_HEIGHT / 2 - config.BULLET_HEIGHT / 2,
                     width: config.BULLET_WIDTH,
                     height: config.BULLET_HEIGHT,
-                    speed: config.BULLET_SPEED,
+                    speed: config.BULLET_SPEED * MOBILE_SPEED_FACTOR,
                     color: config.BULLET_COLOR
                 });
                 state.shootCooldownTimer = state.rapidBonusActive ? config.RAPID_SHOOT_COOLDOWN : config.SHOOT_COOLDOWN;
@@ -418,7 +422,7 @@
                     y: Math.random() * (canvas.height - config.BASE_ALIEN_HEIGHT),
                     width: config.BASE_ALIEN_WIDTH,
                     height: config.BASE_ALIEN_HEIGHT,
-                    speed: state.currentAlienSpeed,
+                    speed: state.currentAlienSpeed * MOBILE_SPEED_FACTOR,
                     color: config.ALIEN_COLOR,
                     canShoot: Math.random() < config.ALIEN_SHOOT_CHANCE
                 });
@@ -433,7 +437,7 @@
                             y: a.y + a.height / 2 - config.ENEMY_BULLET_HEIGHT / 2,
                             width: config.ENEMY_BULLET_WIDTH,
                             height: config.ENEMY_BULLET_HEIGHT,
-                            speed: -config.ENEMY_BULLET_SPEED,
+                            speed: -config.ENEMY_BULLET_SPEED * MOBILE_SPEED_FACTOR,
                             color: config.ENEMY_BULLET_COLOR
                         });
                     }
@@ -449,8 +453,8 @@
                     width: config.BOSS_WIDTH,
                     height: config.BOSS_HEIGHT,
                     hp: config.BOSS_MAX_HP,
-                    speedX: config.BOSS_SPEED_X,
-                    speedY: config.BOSS_SPEED_Y,
+                    speedX: config.BOSS_SPEED_X * MOBILE_SPEED_FACTOR,
+                    speedY: config.BOSS_SPEED_Y * MOBILE_SPEED_FACTOR,
                     color: config.BOSS_COLOR,
                     directionY: 1
                 };
@@ -471,7 +475,7 @@
                         y: b.y + b.height / 2 - config.BOSS_BULLET_HEIGHT / 2,
                         width: config.BOSS_BULLET_WIDTH,
                         height: config.BOSS_BULLET_HEIGHT,
-                        speed: -config.BOSS_BULLET_SPEED,
+                        speed: -config.BOSS_BULLET_SPEED * MOBILE_SPEED_FACTOR,
                         color: config.BOSS_BULLET_COLOR
                     });
                     state.bossShootTimer = config.BOSS_SHOOT_COOLDOWN;
@@ -485,7 +489,7 @@
                     y: Math.random() * (canvas.height - config.BONUS_SIZE),
                     width: config.BONUS_SIZE,
                     height: config.BONUS_SIZE,
-                    speed: 2
+                    speed: 2 * MOBILE_SPEED_FACTOR
                 });
             },
             createBombBonus: () => {
@@ -494,7 +498,7 @@
                     y: Math.random() * (canvas.height - config.BONUS_SIZE),
                     width: config.BONUS_SIZE,
                     height: config.BONUS_SIZE,
-                    speed: 2
+                    speed: 2 * MOBILE_SPEED_FACTOR
                 });
             },
             moveBonuses: (bonusArray) => {
@@ -526,6 +530,7 @@
                 };
                 let playerHit = false, bossDefeated = false, scoreToAdd = 0;
 
+                // Fix: Check enemy bullets correctly
                 for (const [i, bullet] of state.enemyBullets.entries()) {
                     if (game.isColliding(state.player, bullet)) {
                         playerHit = true;
@@ -599,8 +604,7 @@
                     state.score += scoreToAdd;
                     if (!state.isBossActive && !state.bossDefeated) {
                         state.level = Math.floor(state.score / config.SCORE_PER_LEVEL) + 1;
-                        state.currentAlienSpeed = config.BASE_ALIEN_SPEED + (state.level - 1) * config.ALIEN_SPEED_INCREMENT;
-                        state.currentAlienSpawnRate = Math.max(config.MIN_ALIEN_SPAWN_RATE, config.BASE_ALIEN_SPAWN_RATE - (state.level - 1) * config.SPAWN_RATE_DECREMENT);
+                        state.currentAlienSpeed = (config.BASE_ALIEN_SPEED + (state.level - 1) * config.ALIEN_SPEED_INCREMENT) * MOBILE_SPEED_FACTOR;
                     }
                     game.updateUI();
                 }
