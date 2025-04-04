@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRT Space Shooter</title>
-    <link href="[https://fonts.googleapis.com/css2?family=VT323&display=swap](https://fonts.googleapis.com/css2?family=VT323&display=swap)" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #000;
             color: #00ff00;
-            /* Changed font-family */
             font-family: 'VT323', monospace;
             display: flex;
             flex-direction: column;
@@ -18,77 +17,120 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            position: relative;
-            font-size: 20px; /* VT323 might need a slightly larger base size */
+            font-size: 20px;
         }
 
-        /* CRT Scanline Effect */
         body::after {
-            content: " "; display: block; position: absolute;
+            content: "";
+            display: block;
+            position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                       linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 3px, 5px 100%;
-            z-index: 2; pointer-events: none;
+            z-index: 2;
+            pointer-events: none;
         }
 
-        /* CRT Flicker & Glitch Animation */
         @keyframes crtGlitch {
-             0%   { opacity: 0.95; transform: translate(0, 0) scale(1); } 49%  { opacity: 0.95; transform: translate(0, 0) scale(1); }
-             50%  { opacity: 0.8; transform: translate(2px, -2px) scale(1.01); filter: contrast(1.2) brightness(1.1); } 50.5%{ opacity: 0.95; transform: translate(-1px, 1px) scale(0.99); filter: contrast(1) brightness(1); }
-             51%  { opacity: 0.95; transform: translate(0, 0) scale(1); filter: contrast(1) brightness(1); } 98%  { opacity: 0.95; transform: translate(0, 0) scale(1); }
-             99%  { opacity: 0.85; transform: translate(-2px, 1px) scale(0.98); filter: contrast(1.1) brightness(0.9); } 99.5%{ opacity: 0.95; transform: translate(1px, -1px) scale(1.0); filter: contrast(1) brightness(1); }
-             100% { opacity: 0.95; transform: translate(0, 0) scale(1); filter: contrast(1) brightness(1); }
+            0%   { opacity: 0.95; transform: translate(0, 0) scale(1); }
+            49%  { opacity: 0.95; transform: translate(0, 0) scale(1); }
+            50%  { opacity: 0.8; transform: translate(2px, -2px) scale(1.01); filter: contrast(1.2) brightness(1.1); }
+            50.5%{ opacity: 0.95; transform: translate(-1px, 1px) scale(0.99); filter: contrast(1) brightness(1); }
+            51%  { opacity: 0.95; transform: translate(0, 0) scale(1); filter: contrast(1) brightness(1); }
+            98%  { opacity: 0.95; transform: translate(0, 0) scale(1); }
+            99%  { opacity: 0.85; transform: translate(-2px, 1px) scale(0.98); filter: contrast(1.1) brightness(0.9); }
+            99.5%{ opacity: 0.95; transform: translate(1px, -1px) scale(1.0); filter: contrast(1) brightness(1); }
+            100% { opacity: 0.95; transform: translate(0, 0) scale(1); filter: contrast(1) brightness(1); }
         }
 
-        /* Score/Level Display Styling */
         #scoreLevelDisplay {
-            /* font-size adjusted via body */
             text-shadow: 0 0 5px #00ff00;
-            text-align: center; width: 80%; max-width: 700px;
+            text-align: center;
+            width: 80%;
+            max-width: 700px;
             margin-bottom: 15px;
         }
 
         #gameCanvas {
-            background-color: #0a0a0a; display: block;
+            background-color: #0a0a0a;
+            display: block;
             box-shadow: inset 0 0 4px 2px rgba(0, 255, 0, 0.4), 0 0 15px 3px rgba(0, 255, 0, 0.6);
-            max-width: 90%; max-height: 70vh; aspect-ratio: 16 / 9;
-            min-width: 400px; min-height: 225px;
+            max-width: 90%;
+            max-height: 70vh;
+            aspect-ratio: 16 / 9;
+            min-width: 400px;
+            min-height: 225px;
             animation: crtGlitch 0.18s infinite steps(2, jump-none);
             margin-bottom: 15px;
         }
 
-        /* Boss HP Display Styling */
         #bossHpDisplay {
-            text-align: center; /* font-size adjusted via body */ text-shadow: 0 0 5px #00ff00; display: none;
-            width: 150px; height: 20px; border: 1px solid #00ff00;
-            position: relative; background-color: #550000;
+            text-align: center;
+            text-shadow: 0 0 5px #00ff00;
+            display: none;
+            width: 150px;
+            height: 20px;
+            border: 1px solid #00ff00;
+            position: relative;
+            background-color: #550000;
             margin: 0 auto 10px auto;
         }
-        #bossHpBar { position: absolute; top: 0; left: 0; height: 100%; width: 100%; background-color: #00ff00; transition: width 0.2s linear; }
-        #bossHpText { position: absolute; top: 0; left: 0; right: 0; bottom: 0; color: #000; text-shadow: none; font-size: 18px; /* Adjusted size for VT323 */ line-height: 20px; text-align: center; z-index: 1; }
+        #bossHpBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #00ff00;
+            transition: width 0.2s linear;
+        }
+        #bossHpText {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            color: #000;
+            text-shadow: none;
+            font-size: 18px;
+            line-height: 20px;
+            text-align: center;
+            z-index: 1;
+        }
 
-        /* Controls Styling */
-        #controls { text-align: center; }
+        #controls {
+            text-align: center;
+        }
         button {
-            /* Changed font-family */
             font-family: 'VT323', monospace;
-            background-color: #003300; color: #00ff00; border: 2px solid #00ff00;
-            padding: 10px 20px; font-size: 20px; /* Adjusted size for VT323 */ cursor: pointer;
-            text-transform: uppercase; margin: 0 10px; box-shadow: 0 0 5px #00ff00;
+            background-color: #003300;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin: 0 10px;
+            box-shadow: 0 0 5px #00ff00;
             transition: background-color 0.2s, box-shadow 0.2s;
         }
-        button:hover { background-color: #005500; box-shadow: 0 0 10px #00ff00, 0 0 15px #00ff00; }
-        button:active { background-color: #007700; box-shadow: 0 0 5px #00ff00; }
-
+        button:hover {
+            background-color: #005500;
+            box-shadow: 0 0 10px #00ff00, 0 0 15px #00ff00;
+        }
+        button:active {
+            background-color: #007700;
+            box-shadow: 0 0 5px #00ff00;
+        }
     </style>
 </head>
 <body>
-
     <div id="scoreLevelDisplay">Score: 0 | Level: 1</div>
     <canvas id="gameCanvas"></canvas>
     <div id="bossHpDisplay">
-         <div id="bossHpText">BOSS HP</div>
-         <div id="bossHpBar"></div>
+        <div id="bossHpText">BOSS HP</div>
+        <div id="bossHpBar"></div>
     </div>
     <div id="controls">
         <button id="startButton">Start</button>
@@ -96,172 +138,556 @@
     </div>
 
     <script>
-        // Get DOM elements
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreLevelDisplay = document.getElementById('scoreLevelDisplay');
-        const bossHpDisplay = document.getElementById('bossHpDisplay'); const bossHpBar = document.getElementById('bossHpBar'); const bossHpText = document.getElementById('bossHpText'); const startButton = document.getElementById('startButton'); const restartButton = document.getElementById('restartButton');
+        const bossHpDisplay = document.getElementById('bossHpDisplay');
+        const bossHpBar = document.getElementById('bossHpBar');
+        const bossHpText = document.getElementById('bossHpText');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
 
         // Game Configuration
-        const PLAYER_COLOR = '#00ff00'; const BULLET_COLOR = '#00ff00'; const ENEMY_BULLET_COLOR = '#ff5555'; const ALIEN_COLOR = '#00cc00'; const BOSS_COLOR = '#00aa00'; const TEXT_COLOR = '#00ff00'; const STAR_COLOR = '#008800';
-        const BOSS_BULLET_COLOR = '#ffff00';
-        const PLAYER_WIDTH = 32; const PLAYER_HEIGHT = 16; const PLAYER_SPEED = 5;
-        const BULLET_WIDTH = 8; const BULLET_HEIGHT = 3; const BULLET_SPEED = 7;
-        const ENEMY_BULLET_WIDTH = 5; const ENEMY_BULLET_HEIGHT = 5; const ENEMY_BULLET_SPEED = 4;
-        const BOSS_BULLET_WIDTH = 10; const BOSS_BULLET_HEIGHT = 10; const BOSS_BULLET_SPEED = 3.5;
-        const SHOOT_COOLDOWN = 15; const BOSS_SHOOT_COOLDOWN = 45;
-        const BASE_ALIEN_WIDTH = 28; const BASE_ALIEN_HEIGHT = 22; const BASE_ALIEN_SPEED = 1.5; const ALIEN_SPEED_INCREMENT = 0.2;
-        const BASE_ALIEN_SPAWN_RATE = 120; const MIN_ALIEN_SPAWN_RATE = 40; const SPAWN_RATE_DECREMENT = 5;
-        const ALIEN_SHOOT_CHANCE = 0.25; const BASE_ALIEN_FIRE_RATE = 0.008;
-        const SCORE_PER_ALIEN = 50; const SCORE_PER_LEVEL = 1000;
-        const GAME_TIME_SECONDS = 90; const BOSS_SPAWN_TIME = GAME_TIME_SECONDS - 20;
-        const BOSS_WIDTH = 100; const BOSS_HEIGHT = 80; const BOSS_MAX_HP = 60;
-        const BOSS_SPEED_X = 1; const BOSS_SPEED_Y = 0.5;
-        const STAR_COUNT = 100; const STAR_SPEED_FACTOR = 0.5;
+        const config = {
+            PLAYER_COLOR: '#00ff00', BULLET_COLOR: '#00ff00', ENEMY_BULLET_COLOR: '#ff5555',
+            ALIEN_COLOR: '#00cc00', BOSS_COLOR: '#00aa00', TEXT_COLOR: '#00ff00',
+            STAR_COLOR: '#008800', BOSS_BULLET_COLOR: '#ffff00', PLANET_COLORS: ['#004400', '#002200'],
+            RAPID_BONUS_COLOR: '#00ffff', BOMB_BONUS_COLOR: '#00ff00',
+            PLAYER_WIDTH: 32, PLAYER_HEIGHT: 16, PLAYER_SPEED: 5,
+            BULLET_WIDTH: 8, BULLET_HEIGHT: 3, BULLET_SPEED: 7,
+            ENEMY_BULLET_WIDTH: 5, ENEMY_BULLET_HEIGHT: 5, ENEMY_BULLET_SPEED: 4,
+            BOSS_BULLET_WIDTH: 10, BOSS_BULLET_HEIGHT: 10, BOSS_BULLET_SPEED: 3.5,
+            SHOOT_COOLDOWN: 15, RAPID_SHOOT_COOLDOWN: 5, BOSS_SHOOT_COOLDOWN: 45,
+            BASE_ALIEN_WIDTH: 28, BASE_ALIEN_HEIGHT: 22, BASE_ALIEN_SPEED: 1.5,
+            ALIEN_SPEED_INCREMENT: 0.2, BASE_ALIEN_SPAWN_RATE: 60, MIN_ALIEN_SPAWN_RATE: 20,
+            SPAWN_RATE_DECREMENT: 5, ALIEN_SHOOT_CHANCE: 0.5, BASE_ALIEN_FIRE_RATE: 0.02,
+            SCORE_PER_ALIEN: 50, SCORE_PER_LEVEL: 1000, GAME_TIME_SECONDS: 120,
+            BOSS_SPAWN_TIME: 90, BOSS_WIDTH: 100, BOSS_HEIGHT: 80, BOSS_MAX_HP: 60,
+            BOSS_SPEED_X: 1, BOSS_SPEED_Y: 0.5, STAR_COUNT: 100, STAR_SPEED_FACTOR: 0.5,
+            PLANET_COUNT: 3, PLANET_SPEED_FACTOR: 0.3, BONUS_SIZE: 20,
+            RAPID_BONUS_SPAWN_RATE: 600, BOMB_BONUS_SPAWN_RATE: 900, BONUS_DURATION: 300
+        };
 
-        // Game State Variables
-        let player; let bullets; let enemyBullets; let bossBullets; let aliens; let stars; let boss;
-        let score; let level; let gameTimer; let gameOver; let timeUp;
-        let gameLoopId; let lastFrameTime; let keys = {};
-        let shootCooldownTimer; let alienSpawnTimer; let bossShootTimer;
-        let isBossActive; let currentAlienSpeed; let currentAlienSpawnRate; let currentAlienFireRate;
+        // Game State
+        let state = {
+            player: null, bullets: [], enemyBullets: [], bossBullets: [], aliens: [], stars: [],
+            planets: [], rapidBonuses: [], bombBonuses: [], boss: null, score: 0, level: 1, 
+            gameTimer: 0, gameOver: false, timeUp: false, gameLoopId: null, lastFrameTime: 0, 
+            keys: {}, shootCooldownTimer: 0, alienSpawnTimer: 0, bossShootTimer: 0, 
+            isBossActive: false, bossDefeated: false, currentAlienSpeed: config.BASE_ALIEN_SPEED,
+            currentAlienSpawnRate: config.BASE_ALIEN_SPAWN_RATE, currentAlienFireRate: config.BASE_ALIEN_FIRE_RATE,
+            rapidBonusTimer: 0, rapidBonusActive: false, rapidBonusSpawnTimer: config.RAPID_BONUS_SPAWN_RATE,
+            bombBonusSpawnTimer: config.BOMB_BONUS_SPAWN_RATE
+        };
 
-        // --- Utility Functions ---
-        function resizeCanvas() { /* ... */ }
+        // Utility Functions
+        function resizeCanvas() {
+            const aspect = 16 / 9;
+            let width = window.innerWidth * 0.9;
+            let height = width / aspect;
+            if (height > window.innerHeight * 0.7) {
+                height = window.innerHeight * 0.7;
+                width = height * aspect;
+            }
+            canvas.width = Math.max(400, width);
+            canvas.height = Math.max(225, height);
+        }
 
-        // --- Drawing Functions ---
-        function drawRect(x, y, width, height, color) { ctx.fillStyle = color; ctx.fillRect(x, y, width, height); }
-        function drawPlayer() { if (!player) return; const px = player.x; const py = player.y; const pw = PLAYER_WIDTH; const ph = PLAYER_HEIGHT; const color = player.color; drawRect(px + 2, py + 3, pw * 0.7, ph - 6, color); drawRect(px + pw * 0.6, py + ph/2 - 3, 4, 6, color); drawRect(px + pw * 0.7 + 2, py + ph/2 - 2, pw * 0.3, 4, color); drawRect(px + 4, py, 10, 3, color); drawRect(px + 4, py + ph - 3, 10, 3, color); drawRect(px - 4, py + ph/2 - 4, 4, 8, color); }
-        function drawBullets() { if (!bullets || bullets.length === 0) return; bullets.forEach(b => drawRect(b.x, b.y, b.width, b.height, b.color)); }
-        function drawEnemyBullets() { if (!enemyBullets || enemyBullets.length === 0) return; enemyBullets.forEach(b => drawRect(b.x, b.y, b.width, b.height, b.color)); }
-        function drawBossBullets() { if (!bossBullets) return; bossBullets.forEach(b => drawRect(b.x, b.y, b.width, b.height, b.color)); }
-        function drawAliens() { if (!aliens || aliens.length === 0) return; aliens.forEach(a => { const ax = a.x; const ay = a.y; const aw = a.width; const ah = a.height; const color = a.color; drawRect(ax + aw * 0.2, ay, aw * 0.6, ah * 0.2, color); drawRect(ax, ay + ah * 0.2, aw, ah * 0.6, color); drawRect(ax + aw * 0.3, ay + ah * 0.8, aw * 0.4, ah * 0.2, color); drawRect(ax + aw * 0.1, ay + ah * 0.5, aw * 0.2, ah * 0.4, color); drawRect(ax + aw * 0.7, ay + ah * 0.5, aw * 0.2, ah * 0.4, color); drawRect(ax + aw * 0.4, ay + ah * 0.3, aw * 0.2, ah * 0.2, '#000'); }); }
-        function drawBoss() { if (!boss || !isBossActive) return; const bx = boss.x; const by = boss.y; const bw = boss.width; const bh = boss.height; const color = boss.color; drawRect(bx, by + bh * 0.2, bw, bh * 0.6, color); drawRect(bx + bw * 0.2, by, bw * 0.6, bh * 0.3, color); drawRect(bx + bw * 0.1, by + bh * 0.8, bw * 0.8, bh * 0.2, color); drawRect(bx + bw * 0.3, by + bh * 0.9, bw * 0.4, bh * 0.1, color); drawRect(bx + bw * 0.3, by + bh * 0.1, bw * 0.15, bh * 0.15, '#000'); drawRect(bx + bw * 0.55, by + bh * 0.1, bw * 0.15, bh * 0.15, '#000'); drawRect(bx + bw * 0.4, by + bh * 0.5, bw * 0.2, bh * 0.1, '#000'); const hpPercent = (boss.hp / BOSS_MAX_HP) * 100; bossHpBar.style.width = `${hpPercent}%`; bossHpText.textContent = `BOSS HP: ${boss.hp}`; bossHpDisplay.style.display = 'block'; }
-        function updateUI() { scoreLevelDisplay.textContent = `Score: ${score} | Level: ${level}`; if (!isBossActive || gameOver || timeUp) { bossHpDisplay.style.display = 'none'; } else if (boss) { const hpPercent = Math.max(0, (boss.hp / BOSS_MAX_HP) * 100); bossHpBar.style.width = `${hpPercent}%`; bossHpText.textContent = `BOSS HP: ${boss.hp}`; bossHpDisplay.style.display = 'block'; } }
-        function drawStartMessage() { ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height); if (stars) drawStars(); ctx.fillStyle = TEXT_COLOR; ctx.font = "24px 'VT323', monospace"; ctx.textAlign = 'center'; if (canvas.width > 0 && canvas.height > 0) { console.log("Drawing start message."); ctx.fillText("Press START", canvas.width / 2, canvas.height / 2); ctx.font = "20px 'VT323', monospace"; ctx.fillText("Arrows/WASD: Move, Space: Shoot", canvas.width / 2, canvas.height / 2 + 35); } else { console.warn("Canvas dimensions zero."); } }
-        function initStars() { console.log("Init Stars"); stars = []; for (let i = 0; i < STAR_COUNT; i++) { stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 1, speed: (Math.random() * 0.5 + 0.2) * STAR_SPEED_FACTOR }); } }
-        function drawStars() { if (!stars) return; ctx.fillStyle = STAR_COLOR; stars.forEach(s => ctx.fillRect(s.x, s.y, s.size, s.size)); }
-        function moveStars() { if (!stars) return; stars.forEach(s => { s.x -= s.speed; if (s.x + s.size < 0) { s.x = canvas.width; s.y = Math.random() * canvas.height; } }); }
-        function drawGameOverScreen() { ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = TEXT_COLOR; ctx.font = "48px 'VT323', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.shadowColor = '#0f0'; ctx.shadowBlur = 10; ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 40); ctx.font = "24px 'VT323', monospace"; ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 10); ctx.font = "20px 'VT323', monospace"; ctx.fillText("Press RESTART Button", canvas.width / 2, canvas.height / 2 + 50); ctx.shadowBlur = 0; }
+        // Drawing Functions
+        const draw = {
+            rect: (x, y, width, height, color) => {
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, width, height);
+            },
+            circle: (x, y, radius, color) => {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            },
+            player: () => {
+                if (!state.player) return;
+                const { x, y, color } = state.player;
+                const pw = config.PLAYER_WIDTH, ph = config.PLAYER_HEIGHT;
+                draw.rect(x + 2, y + 3, pw * 0.7, ph - 6, color);
+                draw.rect(x + pw * 0.6, y + ph/2 - 3, 4, 6, color);
+                draw.rect(x + pw * 0.7 + 2, y + ph/2 - 2, pw * 0.3, 4, color);
+                draw.rect(x + 4, y, 10, 3, color);
+                draw.rect(x + 4, y + ph - 3, 10, 3, color);
+                draw.rect(x - 4, y + ph/2 - 4, 4, 8, color);
+            },
+            bullets: (bulletArray, color) => bulletArray.forEach(b => draw.rect(b.x, b.y, b.width, b.height, b.color || color)),
+            aliens: () => {
+                state.aliens.forEach(a => {
+                    const { x, y, width: aw, height: ah, color } = a;
+                    draw.rect(x + aw * 0.2, y, aw * 0.6, ah * 0.2, color);
+                    draw.rect(x, y + ah * 0.2, aw, ah * 0.6, color);
+                    draw.rect(x + aw * 0.3, y + ah * 0.8, aw * 0.4, ah * 0.2, color);
+                    draw.rect(x + aw * 0.1, y + ah * 0.5, aw * 0.2, ah * 0.4, color);
+                    draw.rect(x + aw * 0.7, y + ah * 0.5, aw * 0.2, ah * 0.4, color);
+                    draw.rect(x + aw * 0.4, y + ah * 0.3, aw * 0.2, ah * 0.2, '#000');
+                });
+            },
+            boss: () => {
+                if (!state.boss || !state.isBossActive) return;
+                const { x, y, width: bw, height: bh, color } = state.boss;
+                draw.rect(x, y + bh * 0.2, bw, bh * 0.6, color);
+                draw.rect(x + bw * 0.2, y, bw * 0.6, bh * 0.3, color);
+                draw.rect(x + bw * 0.1, y + bh * 0.8, bw * 0.8, bh * 0.2, color);
+                draw.rect(x + bw * 0.3, y + bh * 0.9, bw * 0.4, bh * 0.1, color);
+                draw.rect(x + bw * 0.3, y + bh * 0.1, bw * 0.15, bh * 0.15, '#000');
+                draw.rect(x + bw * 0.55, y + bh * 0.1, bw * 0.15, bh * 0.15, '#000');
+                draw.rect(x + bw * 0.4, y + bh * 0.5, bw * 0.2, bh * 0.1, '#000');
+            },
+            stars: () => state.stars.forEach(s => draw.rect(s.x, s.y, s.size, s.size, config.STAR_COLOR)),
+            planets: () => state.planets.forEach(p => draw.circle(p.x, p.y, p.radius, p.color)),
+            bonuses: (bonusArray, color) => bonusArray.forEach(b => draw.rect(b.x, b.y, config.BONUS_SIZE, config.BONUS_SIZE, color)),
+            startMessage: () => {
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                draw.stars();
+                draw.planets();
+                ctx.fillStyle = config.TEXT_COLOR;
+                ctx.font = "24px 'VT323', monospace";
+                ctx.textAlign = 'center';
+                ctx.fillText("Press START", canvas.width / 2, canvas.height / 2);
+                ctx.font = "20px 'VT323', monospace";
+                ctx.fillText("Arrows/WASD: Move, Space: Shoot", canvas.width / 2, canvas.height / 2 + 35);
+            },
+            gameOverScreen: () => {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = config.TEXT_COLOR;
+                ctx.font = "48px 'VT323', monospace";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.shadowColor = '#0f0';
+                ctx.shadowBlur = 10;
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 40);
+                ctx.font = "24px 'VT323', monospace";
+                ctx.fillText(`Final Score: ${state.score}`, canvas.width / 2, canvas.height / 2 + 10);
+                ctx.font = "20px 'VT323', monospace";
+                ctx.fillText("Press RESTART Button", canvas.width / 2, canvas.height / 2 + 50);
+                ctx.shadowBlur = 0;
+            },
+            bossDefeatedScreen: () => {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = config.TEXT_COLOR;
+                ctx.font = "36px 'VT323', monospace";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.shadowColor = '#0f0';
+                ctx.shadowBlur = 10;
+                ctx.fillText("Next Space Adventure Coming...", canvas.width / 2, canvas.height / 2);
+                ctx.shadowBlur = 0;
+            }
+        };
 
-        // --- Game Logic ---
-        function movePlayer() { if (!player) return; if (keys['ArrowLeft'] || keys['a']) player.x -= PLAYER_SPEED; if (keys['ArrowRight'] || keys['d']) player.x += PLAYER_SPEED; if (keys['ArrowUp'] || keys['w']) player.y -= PLAYER_SPEED; if (keys['ArrowDown'] || keys['s']) player.y += PLAYER_SPEED; if (player.x < 5) player.x = 5; if (player.x + PLAYER_WIDTH > canvas.width) player.x = canvas.width - PLAYER_WIDTH; if (player.y < 0) player.y = 0; if (player.y + PLAYER_HEIGHT > canvas.height) player.y = canvas.height - PLAYER_HEIGHT; }
-        function shoot() { if (!player || shootCooldownTimer > 0) return; const bulletX = player.x + PLAYER_WIDTH; const bulletY = player.y + PLAYER_HEIGHT / 2 - BULLET_HEIGHT / 2; bullets.push({ x: bulletX, y: bulletY, width: BULLET_WIDTH, height: BULLET_HEIGHT, speed: BULLET_SPEED, color: BULLET_COLOR }); shootCooldownTimer = SHOOT_COOLDOWN; }
-        function moveBullets() { if (!bullets) return; for (let i = bullets.length - 1; i >= 0; i--) { bullets[i].x += bullets[i].speed; if (bullets[i].x > canvas.width) { bullets.splice(i, 1); } } }
-        function createEnemyBullet(x, y) { if (!enemyBullets) return; console.log("Alien firing!"); enemyBullets.push({ x: x, y: y, width: ENEMY_BULLET_WIDTH, height: ENEMY_BULLET_HEIGHT, speed: ENEMY_BULLET_SPEED, color: ENEMY_BULLET_COLOR }); }
-        function moveEnemyBullets() { if (!enemyBullets) return; for (let i = enemyBullets.length - 1; i >= 0; i--) { enemyBullets[i].x -= enemyBullets[i].speed; if (enemyBullets[i].x + enemyBullets[i].width < 0) { enemyBullets.splice(i, 1); } } }
-        function createBossBullet(x, y) { if (!bossBullets) return; console.log("Boss Firing!"); bossBullets.push({ x: x, y: y, width: BOSS_BULLET_WIDTH, height: BOSS_BULLET_HEIGHT, speed: BOSS_BULLET_SPEED, color: BOSS_BULLET_COLOR }); }
-        function moveBossBullets() { if (!bossBullets) return; for (let i = bossBullets.length - 1; i >= 0; i--) { bossBullets[i].x -= bossBullets[i].speed; if (bossBullets[i].x + bossBullets[i].width < 0) { bossBullets.splice(i, 1); } } }
-        function createAlien() { if (!aliens || isBossActive) return; const x = canvas.width; const y = Math.random() * (canvas.height - BASE_ALIEN_HEIGHT); const canShoot = Math.random() < ALIEN_SHOOT_CHANCE; aliens.push({ x: x, y: y, width: BASE_ALIEN_WIDTH, height: BASE_ALIEN_HEIGHT, speed: currentAlienSpeed, color: ALIEN_COLOR, canShoot: canShoot }); }
-        function moveAliens() { if (!aliens) return; for (let i = aliens.length - 1; i >= 0; i--) { const alien = aliens[i]; alien.x -= alien.speed; if (alien.canShoot && alien.x < canvas.width && Math.random() < currentAlienFireRate) { createEnemyBullet(alien.x, alien.y + alien.height / 2 - ENEMY_BULLET_HEIGHT / 2); } if (alien.x + alien.width < 0) { aliens.splice(i, 1); } } }
-        function spawnBoss() { console.log("Spawning Boss!"); isBossActive = true; aliens = []; boss = { x: canvas.width, y: canvas.height / 2 - BOSS_HEIGHT / 2, width: BOSS_WIDTH, height: BOSS_HEIGHT, hp: BOSS_MAX_HP, maxHp: BOSS_MAX_HP, speedX: BOSS_SPEED_X, speedY: BOSS_SPEED_Y, color: BOSS_COLOR, directionY: 1 }; bossShootTimer = BOSS_SHOOT_COOLDOWN; bossHpDisplay.style.display = 'block'; }
-        function moveBoss() { if (!boss || !isBossActive) return; if (boss.x > canvas.width - boss.width - 20) { boss.x -= boss.speedX; } else { boss.y += boss.speedY * boss.directionY; if (boss.y <= 0 || boss.y + boss.height >= canvas.height) { boss.directionY *= -1; } } /* Boss Shooting Disabled */ }
-        function levelUp() { level++; console.log(`Level Up! Reached Level ${level}`); currentAlienSpeed = BASE_ALIEN_SPEED + (level - 1) * ALIEN_SPEED_INCREMENT; currentAlienSpawnRate = Math.max(MIN_ALIEN_SPAWN_RATE, BASE_ALIEN_SPAWN_RATE - (level - 1) * SPAWN_RATE_DECREMENT); updateUI(); }
-        function detectCollisions() { if (gameOver || timeUp || !player) return; const bulletsToRemove = new Set(); const aliensToRemove = new Set(); const enemyBulletsToRemove = new Set(); let playerHit = false; let bossDefeated = false; let scoreToAdd = 0; for (let i = 0; i < enemyBullets.length; i++) { const bullet = enemyBullets[i]; if (!bullet) continue; if (player.x < bullet.x + bullet.width && player.x + PLAYER_WIDTH > bullet.x && player.y < bullet.y + bullet.height && player.y + PLAYER_HEIGHT > bullet.y) { console.error("!!! COLLISION: Player hit by Enemy Bullet !!!"); playerHit = true; enemyBulletsToRemove.add(i); break; } } if (!playerHit && !isBossActive) { for (let i = 0; i < aliens.length; i++) { const alien = aliens[i]; if (!alien) continue; if (player.x < alien.x + alien.width && player.x + PLAYER_WIDTH > alien.x && player.y < alien.y + alien.height && player.y + PLAYER_HEIGHT > alien.y) { console.error("!!! COLLISION: Player hit by Alien !!!"); playerHit = true; break; } } } if (!playerHit && isBossActive && boss) { if (player.x < boss.x + boss.width && player.x + PLAYER_WIDTH > boss.x && player.y < boss.y + boss.height && player.y + PLAYER_HEIGHT > boss.y) { console.error("!!! COLLISION: Player hit by Boss !!!"); playerHit = true; } } if (!isBossActive) { for (let i = 0; i < bullets.length; i++) { const bullet = bullets[i]; if (!bullet || bulletsToRemove.has(i)) continue; for (let j = 0; j < aliens.length; j++) { const alien = aliens[j]; if (!alien || aliensToRemove.has(j)) continue; if (bullet.x < alien.x + alien.width && bullet.x + bullet.width > alien.x && bullet.y < alien.y + alien.height && bullet.y + bullet.height > alien.y) { bulletsToRemove.add(i); aliensToRemove.add(j); scoreToAdd += SCORE_PER_ALIEN; break; } } } } if (isBossActive && boss) { for (let i = 0; i < bullets.length; i++) { const bullet = bullets[i]; if (!bullet || bulletsToRemove.has(i)) continue; if (bullet.x < boss.x + boss.width && bullet.x + bullet.width > boss.x && bullet.y < boss.y + boss.height && bullet.y + bullet.height > boss.y) { bulletsToRemove.add(i); boss.hp--; if (boss.hp <= 0) { bossDefeated = true; scoreToAdd += 1000; } } } } if (playerHit) { console.log("Setting gameOver = true"); gameOver = true; return; } const alienIndices = Array.from(aliensToRemove).sort((a, b) => b - a); alienIndices.forEach(index => aliens.splice(index, 1)); const bulletIndices = Array.from(bulletsToRemove).sort((a, b) => b - a); bulletIndices.forEach(index => bullets.splice(index, 1)); const enemyBulletIndices = Array.from(enemyBulletsToRemove).sort((a, b) => b - a); enemyBulletIndices.forEach(index => enemyBullets.splice(index, 1)); if (scoreToAdd > 0) { score += scoreToAdd; if (!isBossActive && score >= level * SCORE_PER_LEVEL) { levelUp(); } else { updateUI(); } } if (bossDefeated) { console.log("Boss Defeated!"); isBossActive = false; boss = null; bossHpDisplay.style.display = 'none'; updateUI(); } }
-
-
-        // --- Game Loop (Structure similar to v1.12) ---
-        function gameLoop(currentTime) {
-            // console.log("gameLoop called, time:", currentTime);
-            if (!lastFrameTime) { lastFrameTime = currentTime; }
-            const deltaTime = (currentTime - lastFrameTime) / 1000 || 0;
-            lastFrameTime = currentTime;
-             if (deltaTime <= 0 || deltaTime > 0.5) { if (!gameOver && !timeUp) { gameLoopId = requestAnimationFrame(gameLoop); } return; }
-
-            try {
-                // --- Run Updates and Collision Detection FIRST ---
-                if (!gameOver && !timeUp) {
-                    // Update Game Timer
-                    gameTimer += deltaTime;
-                    if (gameTimer >= GAME_TIME_SECONDS) {
-                        timeUp = true;
-                        console.log("Time's Up!");
+        // Game Logic
+        const game = {
+            initStars: () => {
+                state.stars = Array.from({ length: config.STAR_COUNT }, () => ({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speed: (Math.random() * 0.5 + 0.2) * config.STAR_SPEED_FACTOR
+                }));
+            },
+            initPlanets: () => {
+                state.planets = Array.from({ length: config.PLANET_COUNT }, () => ({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 20 + 10,
+                    color: config.PLANET_COLORS[Math.floor(Math.random() * config.PLANET_COLORS.length)],
+                    speedX: (Math.random() - 0.5) * config.PLANET_SPEED_FACTOR * 2,
+                    speedY: (Math.random() - 0.5) * config.PLANET_SPEED_FACTOR * 2
+                }));
+            },
+            moveStars: () => {
+                state.stars.forEach(s => {
+                    s.x -= s.speed;
+                    if (s.x + s.size < 0) {
+                        s.x = canvas.width;
+                        s.y = Math.random() * canvas.height;
                     }
-
-                    // Increase Alien Fire Rate Over Time - DISABLED
-                    // Check for Boss Spawn Time
-                     if (!isBossActive && !boss && gameTimer >= BOSS_SPAWN_TIME) { spawnBoss(); }
-                    // Update Timers
-                    if (shootCooldownTimer > 0) shootCooldownTimer--;
-                    if (!isBossActive) alienSpawnTimer--;
-                    // Handle Input
-                     if (keys[' '] || keys['Spacebar']) shoot();
-                    // Spawning
-                    if (!isBossActive && alienSpawnTimer <= 0) { createAlien(); alienSpawnTimer = currentAlienSpawnRate; }
-                    // Updates
-                    movePlayer(); moveBullets(); moveEnemyBullets(); moveBossBullets(); moveStars();
-                    if (isBossActive && boss) { moveBoss(); } else if (!isBossActive) { moveAliens(); }
-
-                    detectCollisions(); // Sets gameOver or timeUp flags if needed
-
-                     // Update UI
-                     updateUI();
-                } // End of main game logic block
-
-                // --- Drawing Phase ---
-                // Always clear the canvas
-                ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // Decide what to draw based on state
-                if (gameOver || timeUp) {
-                    console.log("Drawing End Screen (Game Over / Time Up)");
-                    drawGameOverScreen(); // Draw the final screen
+                });
+            },
+            movePlanets: () => {
+                state.planets.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x + p.radius < 0) p.x = canvas.width + p.radius;
+                    if (p.x - p.radius > canvas.width) p.x = -p.radius;
+                    if (p.y + p.radius < 0) p.y = canvas.height + p.radius;
+                    if (p.y - p.radius > canvas.height) p.y = -p.radius;
+                });
+            },
+            movePlayer: () => {
+                if (!state.player) return;
+                const p = state.player;
+                if (state.keys['ArrowLeft'] || state.keys['a']) p.x -= config.PLAYER_SPEED;
+                if (state.keys['ArrowRight'] || state.keys['d']) p.x += config.PLAYER_SPEED;
+                if (state.keys['ArrowUp'] || state.keys['w']) p.y -= config.PLAYER_SPEED;
+                if (state.keys['ArrowDown'] || state.keys['s']) p.y += config.PLAYER_SPEED;
+                p.x = Math.max(5, Math.min(canvas.width - config.PLAYER_WIDTH, p.x));
+                p.y = Math.max(0, Math.min(canvas.height - config.PLAYER_HEIGHT, p.y));
+            },
+            shoot: () => {
+                if (!state.player || state.shootCooldownTimer > 0) return;
+                const { x, y } = state.player;
+                state.bullets.push({
+                    x: x + config.PLAYER_WIDTH,
+                    y: y + config.PLAYER_HEIGHT / 2 - config.BULLET_HEIGHT / 2,
+                    width: config.BULLET_WIDTH,
+                    height: config.BULLET_HEIGHT,
+                    speed: config.BULLET_SPEED,
+                    color: config.BULLET_COLOR
+                });
+                state.shootCooldownTimer = state.rapidBonusActive ? config.RAPID_SHOOT_COOLDOWN : config.SHOOT_COOLDOWN;
+            },
+            moveBullets: (bullets, speedProp) => {
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    bullets[i].x += bullets[i][speedProp];
+                    if (bullets[i].x > canvas.width || bullets[i].x + bullets[i].width < 0) {
+                        bullets.splice(i, 1);
+                    }
+                }
+            },
+            createAlien: () => {
+                if (state.isBossActive || state.bossDefeated) return;
+                state.aliens.push({
+                    x: canvas.width,
+                    y: Math.random() * (canvas.height - config.BASE_ALIEN_HEIGHT),
+                    width: config.BASE_ALIEN_WIDTH,
+                    height: config.BASE_ALIEN_HEIGHT,
+                    speed: state.currentAlienSpeed,
+                    color: config.ALIEN_COLOR,
+                    canShoot: Math.random() < config.ALIEN_SHOOT_CHANCE
+                });
+            },
+            moveAliens: () => {
+                for (let i = state.aliens.length - 1; i >= 0; i--) {
+                    const a = state.aliens[i];
+                    a.x -= a.speed;
+                    if (a.canShoot && a.x < canvas.width && Math.random() < state.currentAlienFireRate) {
+                        state.enemyBullets.push({
+                            x: a.x,
+                            y: a.y + a.height / 2 - config.ENEMY_BULLET_HEIGHT / 2,
+                            width: config.ENEMY_BULLET_WIDTH,
+                            height: config.ENEMY_BULLET_HEIGHT,
+                            speed: -config.ENEMY_BULLET_SPEED,
+                            color: config.ENEMY_BULLET_COLOR
+                        });
+                    }
+                    if (a.x + a.width < 0) state.aliens.splice(i, 1);
+                }
+            },
+            spawnBoss: () => {
+                state.isBossActive = true;
+                state.aliens = [];
+                state.boss = {
+                    x: canvas.width,
+                    y: canvas.height / 2 - config.BOSS_HEIGHT / 2,
+                    width: config.BOSS_WIDTH,
+                    height: config.BOSS_HEIGHT,
+                    hp: config.BOSS_MAX_HP,
+                    speedX: config.BOSS_SPEED_X,
+                    speedY: config.BOSS_SPEED_Y,
+                    color: config.BOSS_COLOR,
+                    directionY: 1
+                };
+                state.bossShootTimer = config.BOSS_SHOOT_COOLDOWN;
+            },
+            moveBoss: () => {
+                if (!state.boss || !state.isBossActive) return;
+                const b = state.boss;
+                if (b.x > canvas.width - b.width - 20) {
+                    b.x -= b.speedX;
                 } else {
-                    // Normal game drawing
-                    // console.log("Drawing Game Frame");
-                    drawStars(); drawPlayer(); drawBullets(); drawEnemyBullets(); drawBossBullets();
-                     if (isBossActive && boss) { drawBoss(); } else if (!isBossActive) { drawAliens(); }
+                    b.y += b.speedY * b.directionY;
+                    if (b.y <= 0 || b.y + b.height >= canvas.height) b.directionY *= -1;
+                }
+                if (state.bossShootTimer <= 0) {
+                    state.bossBullets.push({
+                        x: b.x,
+                        y: b.y + b.height / 2 - config.BOSS_BULLET_HEIGHT / 2,
+                        width: config.BOSS_BULLET_WIDTH,
+                        height: config.BOSS_BULLET_HEIGHT,
+                        speed: -config.BOSS_BULLET_SPEED,
+                        color: config.BOSS_BULLET_COLOR
+                    });
+                    state.bossShootTimer = config.BOSS_SHOOT_COOLDOWN;
+                } else {
+                    state.bossShootTimer--;
+                }
+            },
+            createRapidBonus: () => {
+                state.rapidBonuses.push({
+                    x: canvas.width,
+                    y: Math.random() * (canvas.height - config.BONUS_SIZE),
+                    width: config.BONUS_SIZE,
+                    height: config.BONUS_SIZE,
+                    speed: 2
+                });
+            },
+            createBombBonus: () => {
+                state.bombBonuses.push({
+                    x: canvas.width,
+                    y: Math.random() * (canvas.height - config.BONUS_SIZE),
+                    width: config.BONUS_SIZE,
+                    height: config.BONUS_SIZE,
+                    speed: 2
+                });
+            },
+            moveBonuses: (bonusArray) => {
+                for (let i = bonusArray.length - 1; i >= 0; i--) {
+                    const b = bonusArray[i];
+                    b.x -= b.speed;
+                    if (b.x + b.width < 0) bonusArray.splice(i, 1);
+                }
+            },
+            updateUI: () => {
+                scoreLevelDisplay.textContent = `Score: ${state.score} | Level: ${state.level}`;
+                if (state.isBossActive && state.boss) {
+                    const hpPercent = Math.max(0, (state.boss.hp / config.BOSS_MAX_HP) * 100);
+                    bossHpBar.style.width = `${hpPercent}%`;
+                    bossHpText.textContent = `BOSS HP: ${state.boss.hp}`;
+                    bossHpDisplay.style.display = 'block';
+                } else {
+                    bossHpDisplay.style.display = 'none';
+                }
+            },
+            detectCollisions: () => {
+                if (state.gameOver || state.timeUp || !state.player) return;
+                const toRemove = { 
+                    bullets: new Set(), 
+                    aliens: new Set(), 
+                    enemyBullets: new Set(), 
+                    rapidBonuses: new Set(), 
+                    bombBonuses: new Set() 
+                };
+                let playerHit = false, bossDefeated = false, scoreToAdd = 0;
+
+                // Player collisions with enemy bullets and entities
+                for (const [i, bullet] of state.enemyBullets.entries()) {
+                    if (game.isColliding(state.player, bullet)) {
+                        playerHit = true;
+                        toRemove.enemyBullets.add(i);
+                        break;
+                    }
+                }
+                if (!playerHit && !state.isBossActive) {
+                    for (const alien of state.aliens) {
+                        if (game.isColliding(state.player, alien)) {
+                            playerHit = true;
+                            break;
+                        }
+                    }
+                }
+                if (!playerHit && state.isBossActive && state.boss) {
+                    if (game.isColliding(state.player, state.boss)) playerHit = true;
                 }
 
-            } catch (error) {
-                console.error("Error in game loop:", error);
-                gameOver = true; // Trigger game over on error
-                try { ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, canvas.width, canvas.height); drawGameOverScreen(); } catch (e) {}
-                cancelAnimationFrame(gameLoopId); gameLoopId = null;
+                // Bullet collisions with aliens or boss
+                if (!state.isBossActive) {
+                    for (const [i, bullet] of state.bullets.entries()) {
+                        for (const [j, alien] of state.aliens.entries()) {
+                            if (game.isColliding(bullet, alien)) {
+                                toRemove.bullets.add(i);
+                                toRemove.aliens.add(j);
+                                scoreToAdd += config.SCORE_PER_ALIEN;
+                                break;
+                            }
+                        }
+                    }
+                } else if (state.boss) {
+                    for (const [i, bullet] of state.bullets.entries()) {
+                        if (game.isColliding(bullet, state.boss)) {
+                            toRemove.bullets.add(i);
+                            state.boss.hp--;
+                            if (state.boss.hp <= 0) {
+                                bossDefeated = true;
+                                scoreToAdd += 1000;
+                            }
+                        }
+                    }
+                }
+
+                // Rapid Bonus collision
+                for (const [i, bonus] of state.rapidBonuses.entries()) {
+                    if (game.isColliding(state.player, bonus)) {
+                        toRemove.rapidBonuses.add(i);
+                        state.rapidBonusActive = true;
+                        state.rapidBonusTimer = config.BONUS_DURATION;
+                    }
+                }
+
+                // Bomb Bonus collision
+                for (const [i, bonus] of state.bombBonuses.entries()) {
+                    if (game.isColliding(state.player, bonus)) {
+                        toRemove.bombBonuses.add(i);
+                        state.aliens = []; // Explode all aliens
+                        scoreToAdd += state.aliens.length * config.SCORE_PER_ALIEN; // Optional: score for exploded aliens
+                    }
+                }
+
+                if (playerHit) {
+                    state.gameOver = true;
+                    return;
+                }
+
+                // Clean up
+                for (const key of ['bullets', 'aliens', 'enemyBullets', 'rapidBonuses', 'bombBonuses']) {
+                    const indices = Array.from(toRemove[key]).sort((a, b) => b - a);
+                    indices.forEach(i => state[key].splice(i, 1));
+                }
+
+                if (scoreToAdd > 0) {
+                    state.score += scoreToAdd;
+                    if (!state.isBossActive && !state.bossDefeated) {
+                        state.level = Math.floor(state.score / config.SCORE_PER_LEVEL) + 1;
+                        state.currentAlienSpeed = config.BASE_ALIEN_SPEED + (state.level - 1) * config.ALIEN_SPEED_INCREMENT;
+                        state.currentAlienSpawnRate = Math.max(config.MIN_ALIEN_SPAWN_RATE, config.BASE_ALIEN_SPAWN_RATE - (state.level - 1) * config.SPAWN_RATE_DECREMENT);
+                    }
+                    game.updateUI();
+                }
+
+                if (bossDefeated) {
+                    state.isBossActive = false;
+                    state.bossDefeated = true;
+                    state.boss = null;
+                    game.updateUI();
+                }
+            },
+            isColliding: (a, b) => {
+                return a.x < b.x + b.width && a.x + a.width > b.x && 
+                       a.y < b.y + b.height && a.y + a.height > b.y;
+            }
+        };
+
+        // Game Loop
+        function gameLoop(currentTime) {
+            if (!state.lastFrameTime) state.lastFrameTime = currentTime;
+            const deltaTime = (currentTime - state.lastFrameTime) / 1000;
+            state.lastFrameTime = currentTime;
+
+            if (deltaTime <= 0 || deltaTime > 0.5) {
+                if (!state.gameOver && !state.timeUp) state.gameLoopId = requestAnimationFrame(gameLoop);
                 return;
             }
 
-            // Request Next Frame ONLY if game should continue
-            if (!gameOver && !timeUp) {
-                gameLoopId = requestAnimationFrame(gameLoop);
-            } else {
-                console.log("Loop ended (Game Over / Time Up), not requesting new frame.");
-                 if (gameLoopId) { cancelAnimationFrame(gameLoopId); gameLoopId = null; }
+            try {
+                if (!state.gameOver && !state.timeUp) {
+                    state.gameTimer += deltaTime;
+                    if (!state.isBossActive && !state.bossDefeated && state.gameTimer >= config.BOSS_SPAWN_TIME) {
+                        game.spawnBoss();
+                    }
+
+                    if (state.shootCooldownTimer > 0) state.shootCooldownTimer--;
+                    if (!state.isBossActive && !state.bossDefeated && state.alienSpawnTimer-- <= 0) {
+                        game.createAlien();
+                        state.alienSpawnTimer = state.currentAlienSpawnRate;
+                    }
+                    if (state.rapidBonusSpawnTimer-- <= 0) {
+                        game.createRapidBonus();
+                        state.rapidBonusSpawnTimer = config.RAPID_BONUS_SPAWN_RATE;
+                    }
+                    if (state.bombBonusSpawnTimer-- <= 0) {
+                        game.createBombBonus();
+                        state.bombBonusSpawnTimer = config.BOMB_BONUS_SPAWN_RATE;
+                    }
+                    if (state.rapidBonusActive && state.rapidBonusTimer-- <= 0) state.rapidBonusActive = false;
+
+                    if (state.keys[' '] || state.keys['Spacebar']) game.shoot();
+                    game.movePlayer();
+                    game.moveBullets(state.bullets, 'speed');
+                    game.moveBullets(state.enemyBullets, 'speed');
+                    game.moveBullets(state.bossBullets, 'speed');
+                    game.moveStars();
+                    game.movePlanets();
+                    game.moveBonuses(state.rapidBonuses);
+                    game.moveBonuses(state.bombBonuses);
+                    if (state.isBossActive) game.moveBoss();
+                    else if (!state.bossDefeated) game.moveAliens();
+                    game.detectCollisions();
+                    game.updateUI();
+                }
+
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                if (state.gameOver || state.timeUp) {
+                    draw.gameOverScreen();
+                } else if (state.bossDefeated) {
+                    draw.bossDefeatedScreen();
+                } else {
+                    draw.stars();
+                    draw.planets();
+                    draw.bonuses(state.rapidBonuses, config.RAPID_BONUS_COLOR);
+                    draw.bonuses(state.bombBonuses, config.BOMB_BONUS_COLOR);
+                    draw.player();
+                    draw.bullets(state.bullets, config.BULLET_COLOR);
+                    draw.bullets(state.enemyBullets, config.ENEMY_BULLET_COLOR);
+                    draw.bullets(state.bossBullets, config.BOSS_BULLET_COLOR);
+                    if (state.isBossActive) draw.boss();
+                    else if (!state.bossDefeated) draw.aliens();
+                }
+
+                if (!state.gameOver && !state.timeUp) {
+                    state.gameLoopId = requestAnimationFrame(gameLoop);
+                } else if (state.gameLoopId) {
+                    cancelAnimationFrame(state.gameLoopId);
+                    state.gameLoopId = null;
+                }
+            } catch (error) {
+                console.error("Game loop error:", error);
+                state.gameOver = true;
+                draw.gameOverScreen();
             }
         }
 
-        // --- Initialization and Controls ---
+        // Initialization
         function initGame() {
-            console.log("--- Initializing game START ---");
-            if (gameLoopId) { cancelAnimationFrame(gameLoopId); gameLoopId = null; console.log("Cleared previous game loop."); }
-            resizeCanvas(); initStars();
-            player = { x: 50, y: canvas.height / 2 - PLAYER_HEIGHT / 2, width: PLAYER_WIDTH, height: PLAYER_HEIGHT, color: PLAYER_COLOR };
-            bullets = []; enemyBullets = []; bossBullets = []; aliens = []; boss = null;
-            score = 0; level = 1; gameTimer = 0;
-            gameOver = false; timeUp = false; isBossActive = false; // Ensure flags are false
-            shootCooldownTimer = 0; lastFrameTime = 0; keys = {}; bossShootTimer = 0;
-            currentAlienSpeed = BASE_ALIEN_SPEED; currentAlienSpawnRate = BASE_ALIEN_SPAWN_RATE;
-            currentAlienFireRate = BASE_ALIEN_FIRE_RATE;
-            alienSpawnTimer = currentAlienSpawnRate;
-            updateUI();
-            startButton.style.display = 'none'; restartButton.style.display = 'inline-block';
-            console.log("Initial State Check - gameOver:", gameOver, "timeUp:", timeUp); // Confirm false state
-            console.log("Requesting first animation frame...");
-            gameLoopId = requestAnimationFrame(gameLoop);
-            console.log("--- Initializing game END ---");
+            if (state.gameLoopId) cancelAnimationFrame(state.gameLoopId);
+            resizeCanvas();
+            game.initStars();
+            game.initPlanets();
+            state = {
+                ...state,
+                player: { x: 50, y: canvas.height / 2 - config.PLAYER_HEIGHT / 2, width: config.PLAYER_WIDTH, height: config.PLAYER_HEIGHT, color: config.PLAYER_COLOR },
+                bullets: [], enemyBullets: [], bossBullets: [], aliens: [], rapidBonuses: [], bombBonuses: [],
+                boss: null, score: 0, level: 1, gameTimer: 0, gameOver: false, timeUp: false,
+                gameLoopId: null, lastFrameTime: 0, keys: {}, shootCooldownTimer: 0,
+                alienSpawnTimer: config.BASE_ALIEN_SPAWN_RATE, bossShootTimer: 0,
+                isBossActive: false, bossDefeated: false, currentAlienSpeed: config.BASE_ALIEN_SPEED,
+                currentAlienSpawnRate: config.BASE_ALIEN_SPAWN_RATE, currentAlienFireRate: config.BASE_ALIEN_FIRE_RATE,
+                rapidBonusTimer: 0, rapidBonusActive: false, rapidBonusSpawnTimer: config.RAPID_BONUS_SPAWN_RATE,
+                bombBonusSpawnTimer: config.BOMB_BONUS_SPAWN_RATE
+            };
+            startButton.style.display = 'none';
+            restartButton.style.display = 'inline-block';
+            game.updateUI();
+            state.gameLoopId = requestAnimationFrame(gameLoop);
         }
 
-        // --- Event Listeners ---
-        window.addEventListener('keydown', (e) => { keys[e.key] = true; if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar', 'a', 'w', 's', 'd'].includes(e.key)) { e.preventDefault(); } });
-        window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+        // Event Listeners
+        window.addEventListener('keydown', e => {
+            state.keys[e.key] = true;
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar', 'a', 'w', 's', 'd'].includes(e.key)) e.preventDefault();
+        });
+        window.addEventListener('keyup', e => state.keys[e.key] = false);
         window.addEventListener('resize', resizeCanvas);
         startButton.addEventListener('click', initGame);
         restartButton.addEventListener('click', initGame);
 
-        // Initial setup
-        window.onload = () => { console.log("Window loaded."); initStars(); resizeCanvas(); };
-
+        // Initial Setup
+        window.onload = () => {
+            resizeCanvas();
+            game.initStars();
+            game.initPlanets();
+            draw.startMessage();
+        };
     </script>
-
 </body>
 </html>
