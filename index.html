@@ -18,6 +18,7 @@
             margin: 0;
             overflow: hidden;
             font-size: 20px;
+            touch-action: none;
         }
 
         body::after {
@@ -123,6 +124,46 @@
             background-color: #007700;
             box-shadow: 0 0 5px #00ff00;
         }
+
+        #joystickContainer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        #joystick {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #00ff00;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 5px #00ff00;
+        }
+        #fireButton {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #003300;
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            z-index: 10;
+            pointer-events: auto;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        #fireButton:active {
+            background: #007700;
+        }
     </style>
 </head>
 <body>
@@ -136,6 +177,10 @@
         <button id="startButton">Start</button>
         <button id="restartButton" style="display: none;">Restart</button>
     </div>
+    <div id="joystickContainer">
+        <div id="joystick"></div>
+    </div>
+    <div id="fireButton"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -146,6 +191,9 @@
         const bossHpText = document.getElementById('bossHpText');
         const startButton = document.getElementById('startButton');
         const restartButton = document.getElementById('restartButton');
+        const joystickContainer = document.getElementById('joystickContainer');
+        const joystick = document.getElementById('joystick');
+        const fireButton = document.getElementById('fireButton');
 
         // Game Configuration
         const config = {
@@ -165,7 +213,8 @@
             BOSS_SPAWN_TIME: 90, BOSS_WIDTH: 100, BOSS_HEIGHT: 80, BOSS_MAX_HP: 60,
             BOSS_SPEED_X: 1, BOSS_SPEED_Y: 0.5, STAR_COUNT: 100, STAR_SPEED_FACTOR: 0.5,
             PLANET_COUNT: 3, PLANET_SPEED_FACTOR: 0.3, BONUS_SIZE: 20,
-            RAPID_BONUS_SPAWN_RATE: 600, BOMB_BONUS_SPAWN_RATE: 900, BONUS_DURATION: 300
+            RAPID_BONUS_SPAWN_RATE: 600, BOMB_BONUS_SPAWN_RATE: 900, BONUS_DURATION: 300,
+            JOYSTICK_RADIUS: 50, JOYSTICK_INNER_RADIUS: 20
         };
 
         // Game State
@@ -177,7 +226,8 @@
             isBossActive: false, bossDefeated: false, currentAlienSpeed: config.BASE_ALIEN_SPEED,
             currentAlienSpawnRate: config.BASE_ALIEN_SPAWN_RATE, currentAlienFireRate: config.BASE_ALIEN_FIRE_RATE,
             rapidBonusTimer: 0, rapidBonusActive: false, rapidBonusSpawnTimer: config.RAPID_BONUS_SPAWN_RATE,
-            bombBonusSpawnTimer: config.BOMB_BONUS_SPAWN_RATE
+            bombBonusSpawnTimer: config.BOMB_BONUS_SPAWN_RATE,
+            joystickActive: false, joystickX: 0, joystickY: 0, isShooting: false
         };
 
         // Utility Functions
@@ -252,7 +302,7 @@
                 ctx.textAlign = 'center';
                 ctx.fillText("Press START", canvas.width / 2, canvas.height / 2);
                 ctx.font = "20px 'VT323', monospace";
-                ctx.fillText("Arrows/WASD: Move, Space: Shoot", canvas.width / 2, canvas.height / 2 + 35);
+                ctx.fillText("Arrows/WASD or Joystick: Move, Space or Button: Shoot", canvas.width / 2, canvas.height / 2 + 35);
             },
             gameOverScreen: () => {
                 ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
@@ -326,10 +376,17 @@
             movePlayer: () => {
                 if (!state.player) return;
                 const p = state.player;
+
                 if (state.keys['ArrowLeft'] || state.keys['a']) p.x -= config.PLAYER_SPEED;
                 if (state.keys['ArrowRight'] || state.keys['d']) p.x += config.PLAYER_SPEED;
                 if (state.keys['ArrowUp'] || state.keys['w']) p.y -= config.PLAYER_SPEED;
                 if (state.keys['ArrowDown'] || state.keys['s']) p.y += config.PLAYER_SPEED;
+
+                if (state.joystickActive) {
+                    p.x += state.joystickX * config.PLAYER_SPEED;
+                    p.y += state.joystickY * config.PLAYER_SPEED;
+                }
+
                 p.x = Math.max(5, Math.min(canvas.width - config.PLAYER_WIDTH, p.x));
                 p.y = Math.max(0, Math.min(canvas.height - config.PLAYER_HEIGHT, p.y));
             },
@@ -469,7 +526,6 @@
                 };
                 let playerHit = false, bossDefeated = false, scoreToAdd = 0;
 
-                // Player collisions with enemy bullets and entities
                 for (const [i, bullet] of state.enemyBullets.entries()) {
                     if (game.isColliding(state.player, bullet)) {
                         playerHit = true;
@@ -489,7 +545,6 @@
                     if (game.isColliding(state.player, state.boss)) playerHit = true;
                 }
 
-                // Bullet collisions with aliens or boss
                 if (!state.isBossActive) {
                     for (const [i, bullet] of state.bullets.entries()) {
                         for (const [j, alien] of state.aliens.entries()) {
@@ -514,7 +569,6 @@
                     }
                 }
 
-                // Rapid Bonus collision
                 for (const [i, bonus] of state.rapidBonuses.entries()) {
                     if (game.isColliding(state.player, bonus)) {
                         toRemove.rapidBonuses.add(i);
@@ -523,12 +577,11 @@
                     }
                 }
 
-                // Bomb Bonus collision
                 for (const [i, bonus] of state.bombBonuses.entries()) {
                     if (game.isColliding(state.player, bonus)) {
                         toRemove.bombBonuses.add(i);
-                        state.aliens = []; // Explode all aliens
-                        scoreToAdd += state.aliens.length * config.SCORE_PER_ALIEN; // Optional: score for exploded aliens
+                        state.aliens = [];
+                        scoreToAdd += state.aliens.length * config.SCORE_PER_ALIEN;
                     }
                 }
 
@@ -537,7 +590,6 @@
                     return;
                 }
 
-                // Clean up
                 for (const key of ['bullets', 'aliens', 'enemyBullets', 'rapidBonuses', 'bombBonuses']) {
                     const indices = Array.from(toRemove[key]).sort((a, b) => b - a);
                     indices.forEach(i => state[key].splice(i, 1));
@@ -565,6 +617,62 @@
                        a.y < b.y + b.height && a.y + a.height > b.y;
             }
         };
+
+        // Touch Controls
+        function handleJoystickStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = joystickContainer.getBoundingClientRect();
+            state.joystickActive = true;
+            updateJoystick(touch, rect);
+        }
+
+        function handleJoystickMove(e) {
+            e.preventDefault();
+            if (!state.joystickActive) return;
+            const touch = e.touches[0];
+            const rect = joystickContainer.getBoundingClientRect();
+            updateJoystick(touch, rect);
+        }
+
+        function handleJoystickEnd(e) {
+            e.preventDefault();
+            state.joystickActive = false;
+            state.joystickX = 0;
+            state.joystickY = 0;
+            joystick.style.left = '50%';
+            joystick.style.top = '50%';
+        }
+
+        function updateJoystick(touch, rect) {
+            const centerX = rect.left + config.JOYSTICK_RADIUS;
+            const centerY = rect.top + config.JOYSTICK_RADIUS;
+            let dx = touch.clientX - centerX;
+            let dy = touch.clientY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const maxDistance = config.JOYSTICK_RADIUS - config.JOYSTICK_INNER_RADIUS;
+
+            if (distance > maxDistance) {
+                dx = (dx / distance) * maxDistance;
+                dy = (dy / distance) * maxDistance;
+            }
+
+            state.joystickX = dx / maxDistance;
+            state.joystickY = dy / maxDistance;
+
+            joystick.style.left = `${centerX + dx - rect.left}px`;
+            joystick.style.top = `${centerY + dy - rect.top}px`;
+        }
+
+        function handleFireStart(e) {
+            e.preventDefault();
+            state.isShooting = true;
+        }
+
+        function handleFireEnd(e) {
+            e.preventDefault();
+            state.isShooting = false;
+        }
 
         // Game Loop
         function gameLoop(currentTime) {
@@ -599,7 +707,7 @@
                     }
                     if (state.rapidBonusActive && state.rapidBonusTimer-- <= 0) state.rapidBonusActive = false;
 
-                    if (state.keys[' '] || state.keys['Spacebar']) game.shoot();
+                    if (state.keys[' '] || state.keys['Spacebar'] || state.isShooting) game.shoot();
                     game.movePlayer();
                     game.moveBullets(state.bullets, 'speed');
                     game.moveBullets(state.enemyBullets, 'speed');
@@ -619,8 +727,12 @@
 
                 if (state.gameOver || state.timeUp) {
                     draw.gameOverScreen();
+                    joystickContainer.style.display = 'none';
+                    fireButton.style.display = 'none';
                 } else if (state.bossDefeated) {
                     draw.bossDefeatedScreen();
+                    joystickContainer.style.display = 'none';
+                    fireButton.style.display = 'none';
                 } else {
                     draw.stars();
                     draw.planets();
@@ -663,10 +775,13 @@
                 isBossActive: false, bossDefeated: false, currentAlienSpeed: config.BASE_ALIEN_SPEED,
                 currentAlienSpawnRate: config.BASE_ALIEN_SPAWN_RATE, currentAlienFireRate: config.BASE_ALIEN_FIRE_RATE,
                 rapidBonusTimer: 0, rapidBonusActive: false, rapidBonusSpawnTimer: config.RAPID_BONUS_SPAWN_RATE,
-                bombBonusSpawnTimer: config.BOMB_BONUS_SPAWN_RATE
+                bombBonusSpawnTimer: config.BOMB_BONUS_SPAWN_RATE,
+                joystickActive: false, joystickX: 0, joystickY: 0, isShooting: false
             };
             startButton.style.display = 'none';
             restartButton.style.display = 'inline-block';
+            joystickContainer.style.display = 'block';
+            fireButton.style.display = 'block';
             game.updateUI();
             state.gameLoopId = requestAnimationFrame(gameLoop);
         }
@@ -681,12 +796,20 @@
         startButton.addEventListener('click', initGame);
         restartButton.addEventListener('click', initGame);
 
+        joystickContainer.addEventListener('touchstart', handleJoystickStart);
+        joystickContainer.addEventListener('touchmove', handleJoystickMove);
+        joystickContainer.addEventListener('touchend', handleJoystickEnd);
+        fireButton.addEventListener('touchstart', handleFireStart);
+        fireButton.addEventListener('touchend', handleFireEnd);
+
         // Initial Setup
         window.onload = () => {
             resizeCanvas();
             game.initStars();
             game.initPlanets();
             draw.startMessage();
+            joystickContainer.style.display = 'none';
+            fireButton.style.display = 'none';
         };
     </script>
 </body>
